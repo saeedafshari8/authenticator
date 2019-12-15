@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
@@ -46,6 +47,10 @@ var JwtAuthentication = func(authInfo *AuthInfo, router *gin.Engine) *jwt.GinJWT
 
 	if (*authInfo).LoginEndPoint == "" {
 		(*authInfo).LoginEndPoint = "/v1/login"
+	}
+
+	if (*authInfo).Authenticator == nil {
+		panic(errors.New("authenticator is not provided"))
 	}
 
 	// the jwt middleware
