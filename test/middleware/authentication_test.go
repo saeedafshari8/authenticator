@@ -70,6 +70,30 @@ func TestOpenAPI(t *testing.T) {
 }
 
 func TestLoginAndGetToken(t *testing.T) {
+	loginGetToken(t)
+}
+
+func TestLoginAndCallProtectedAPI(t *testing.T) {
+	loginResponse := loginGetToken(t)
+
+	w := httptest.NewRecorder()
+
+	r := test.GetRouter()
+
+	loginPOSTPayload := getLoginPOSTPayload()
+	req, _ := http.NewRequest("POST", "/v1/echo", strings.NewReader(loginPOSTPayload))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.Itoa(len(loginPOSTPayload)))
+	req.Header.Add("Authorization", "Bearer "+(*loginResponse).Token)
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fail()
+	}
+}
+
+func loginGetToken(t *testing.T) *m.LoginResponse {
 	w := httptest.NewRecorder()
 
 	r := test.GetRouter()
@@ -95,4 +119,5 @@ func TestLoginAndGetToken(t *testing.T) {
 	if err != nil || response.Token == "" {
 		t.Fail()
 	}
+	return &response
 }

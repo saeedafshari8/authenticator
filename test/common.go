@@ -26,7 +26,7 @@ func GetRouter() *gin.Engine {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
-			c.JSON(http.StatusCreated, login)
+			c.JSON(http.StatusOK, login)
 		})
 	}
 	return r

@@ -86,8 +86,11 @@ var JwtAuthentication = func(authInfo *AuthInfo, router *gin.Engine) *jwt.GinJWT
 		},
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			if account, ok := data.(*Account); ok {
-				authorized, err := (*authInfo).Authorizator(account)
-				return err == nil && authorized
+				if (*authInfo).Authorizator != nil {
+					authorized, err := (*authInfo).Authorizator(account)
+					return err == nil && authorized
+				}
+				return true
 			}
 			return false
 		},
