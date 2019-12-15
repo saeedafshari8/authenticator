@@ -68,3 +68,31 @@ func TestOpenAPI(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestLoginAndGetToken(t *testing.T) {
+	w := httptest.NewRecorder()
+
+	r := test.GetRouter()
+
+	loginPOSTPayload := getLoginPOSTPayload()
+	req, _ := http.NewRequest("POST", "/v1/login", strings.NewReader(loginPOSTPayload))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.Itoa(len(loginPOSTPayload)))
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fail()
+	}
+
+	p, err := ioutil.ReadAll(w.Body)
+	if err != nil {
+		t.Fail()
+	}
+
+	var response m.LoginResponse
+	err = json.Unmarshal(p, &response)
+	if err != nil || response.Token == "" {
+		t.Fail()
+	}
+}

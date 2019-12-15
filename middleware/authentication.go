@@ -24,6 +24,12 @@ type Login struct {
 	Password string `form:"password" json:"password" binding:"required"`
 }
 
+type LoginResponse struct {
+	Code   int       `form:"code" json:"code" binding:"required"`
+	Token  string    `form:"token" json:"token" binding:"required"`
+	Expire time.Time `form:"expire" json:"expire" binding:"required"`
+}
+
 type HttpStatusResponse struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
