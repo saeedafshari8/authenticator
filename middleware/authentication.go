@@ -12,6 +12,7 @@ type AuthInfo struct {
 	IdentityKey   string
 	Realm         string
 	Secret        string
+	LoginEndPoint string
 	TokenTimeout  time.Duration
 	MaxRefresh    time.Duration
 	Authenticator func(login *Login) (*Account, error)
@@ -28,13 +29,17 @@ type HttpStatusResponse struct {
 	Message string `json:"message"`
 }
 
-var JwtAuthentication = func(authInfo *AuthInfo) *jwt.GinJWTMiddleware {
+var JwtAuthentication = func(authInfo *AuthInfo, router *gin.Engine) *jwt.GinJWTMiddleware {
 
 	if (*authInfo).TokenTimeout == 0 {
 		(*authInfo).TokenTimeout = time.Hour
 	}
 	if (*authInfo).MaxRefresh == 0 {
 		(*authInfo).MaxRefresh = time.Hour
+	}
+
+	if (*authInfo).LoginEndPoint == "" {
+		(*authInfo).LoginEndPoint = "/v1/login"
 	}
 
 	// the jwt middleware
@@ -63,11 +68,11 @@ var JwtAuthentication = func(authInfo *AuthInfo) *jwt.GinJWTMiddleware {
 			}
 		},
 		Authenticator: func(c *gin.Context) (interface{}, error) {
-			var login *Login
-			if err := c.ShouldBind(login); err != nil {
+			var login Login
+			if err := c.ShouldBind(&login); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			account, err := (*authInfo).Authenticator(login)
+			account, err := (*authInfo).Authenticator(&login)
 			if err != nil {
 				return nil, jwt.ErrFailedAuthentication
 			}
@@ -94,6 +99,8 @@ var JwtAuthentication = func(authInfo *AuthInfo) *jwt.GinJWTMiddleware {
 	if err != nil {
 		log.Fatal("JWT Error:" + err.Error())
 	}
+
+	router.POST((*authInfo).LoginEndPoint, authMiddleware.LoginHandler)
 
 	return authMiddleware
 }

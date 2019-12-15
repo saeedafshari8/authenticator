@@ -18,15 +18,7 @@ func GetRouter() *gin.Engine {
 		MaxRefresh:    time.Hour,
 		Authenticator: MockAuth,
 	}
-	r.POST("/v1/login", func(c *gin.Context) {
-		var login m.Login
-		if err := c.ShouldBindJSON(&login); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, login)
-	})
-	r.Use(m.JwtAuthentication(authInfo).MiddlewareFunc())
+	r.Use(m.JwtAuthentication(authInfo, r).MiddlewareFunc())
 	{
 		r.POST("/v1/echo", func(c *gin.Context) {
 			var login m.Login
