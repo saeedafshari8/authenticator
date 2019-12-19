@@ -16,7 +16,8 @@ func GetRouter() *gin.Engine {
 		Secret:        "secret",
 		TokenTimeout:  time.Hour,
 		MaxRefresh:    time.Hour,
-		Authenticator: MockAuth,
+		Authenticator: MockAuthentication,
+		Authorizator:  MockAuthorization,
 	}
 	r.Use(m.JwtAuthentication(authInfo, r).MiddlewareFunc())
 	{
@@ -32,16 +33,24 @@ func GetRouter() *gin.Engine {
 	return r
 }
 
-func MockAuth(login *m.Login) (*m.Account, error) {
+func MockAuthentication(login *m.Login) (*m.Account, error) {
 	if (login.Username == "admin" && login.Password == "admin") ||
 		(login.Username == "test" && login.Password == "test") {
 		return &m.Account{
 			Email:     login.Username,
+			UserName:  login.Username,
 			LastName:  "Afshari",
 			FirstName: "Saeed",
 		}, nil
 	}
 	return nil, jwt.ErrFailedAuthentication
+}
+
+func MockAuthorization(account *m.Account) (bool, error) {
+	if account.UserName == "admin" {
+		return true, nil
+	}
+	return false, jwt.ErrForbidden
 }
 
 func init() {
