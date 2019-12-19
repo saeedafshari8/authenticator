@@ -109,6 +109,7 @@ func identityHandler(authInfo *AuthInfo) func(c *gin.Context) interface{} {
 			Email:     claims[(*authInfo).IdentityKey].(string),
 			FirstName: claims["firstName"].(string),
 			LastName:  claims["lastName"].(string),
+			UserName:  claims["userName"].(string),
 		}
 	}
 }
@@ -118,6 +119,7 @@ func payloadFunc(authInfo *AuthInfo) func(data interface{}) jwt.MapClaims {
 		if account, ok := data.(*Account); ok {
 			return jwt.MapClaims{
 				(*authInfo).IdentityKey: account.Email,
+				"userName":              account.UserName,
 				"firstName":             account.FirstName,
 				"lastName":              account.LastName,
 			}
