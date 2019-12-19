@@ -58,7 +58,7 @@ func TestOpenAPI(t *testing.T) {
 	r := test.GetRouter()
 
 	loginPOSTPayload := getLoginPOSTPayload()
-	req, _ := http.NewRequest("POST", "/v1/login", strings.NewReader(loginPOSTPayload))
+	req, _ := http.NewRequest("POST", "/auth/login", strings.NewReader(loginPOSTPayload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Content-Length", strconv.Itoa(len(loginPOSTPayload)))
 
@@ -99,7 +99,7 @@ func loginGetToken(t *testing.T) *m.LoginResponse {
 	r := test.GetRouter()
 
 	loginPOSTPayload := getLoginPOSTPayload()
-	req, _ := http.NewRequest("POST", "/v1/login", strings.NewReader(loginPOSTPayload))
+	req, _ := http.NewRequest("POST", "/auth/login", strings.NewReader(loginPOSTPayload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Content-Length", strconv.Itoa(len(loginPOSTPayload)))
 

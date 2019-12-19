@@ -10,14 +10,15 @@ import (
 )
 
 type AuthInfo struct {
-	IdentityKey   string
-	Realm         string
-	Secret        string
-	LoginEndPoint string
-	TokenTimeout  time.Duration
-	MaxRefresh    time.Duration
-	Authenticator func(login *Login) (*Account, error)
-	Authorizator  func(account *Account) (bool, error)
+	IdentityKey          string
+	Realm                string
+	Secret               string
+	LoginEndPoint        string
+	RefreshTokenEndPoint string
+	TokenTimeout         time.Duration
+	MaxRefresh           time.Duration
+	Authenticator        func(login *Login) (*Account, error)
+	Authorizator         func(account *Account) (bool, error)
 }
 
 type Login struct {
@@ -61,6 +62,8 @@ var JwtAuthentication = func(authInfo *AuthInfo, router *gin.Engine) *jwt.GinJWT
 		log.Fatal("JWT Error:" + err.Error())
 	}
 
+	// Refresh time can be longer than token timeout
+	router.GET((*authInfo).RefreshTokenEndPoint, authMiddleware.RefreshHandler)
 	router.POST((*authInfo).LoginEndPoint, authMiddleware.LoginHandler)
 
 	return authMiddleware
@@ -137,7 +140,11 @@ func setDefaults(authInfo *AuthInfo) {
 	}
 
 	if (*authInfo).LoginEndPoint == "" {
-		(*authInfo).LoginEndPoint = "/v1/login"
+		(*authInfo).LoginEndPoint = "/auth/login"
+	}
+
+	if (*authInfo).RefreshTokenEndPoint == "" {
+		(*authInfo).RefreshTokenEndPoint = "/auth/refresh_token"
 	}
 
 	if (*authInfo).Authenticator == nil {
