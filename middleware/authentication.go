@@ -6,6 +6,7 @@ import (
 	"github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -18,7 +19,7 @@ type AuthInfo struct {
 	TokenTimeout         time.Duration
 	MaxRefresh           time.Duration
 	Authenticator        func(login *Login) (*Account, error)
-	Authorizator         func(account *Account) (bool, error)
+	Authorizator         func(account *Account, request *http.Request) (bool, error)
 }
 
 type Login struct {
@@ -82,7 +83,7 @@ func authorizator(authInfo *AuthInfo) func(data interface{}, c *gin.Context) boo
 	return func(data interface{}, c *gin.Context) bool {
 		if account, ok := data.(*Account); ok {
 			if (*authInfo).Authorizator != nil {
-				authorized, err := (*authInfo).Authorizator(account)
+				authorized, err := (*authInfo).Authorizator(account, c.Request)
 				return err == nil && authorized
 			}
 			return true
