@@ -46,8 +46,8 @@ func MockAuthentication(login *m.Login) (*m.Account, error) {
 	return nil, jwt.ErrFailedAuthentication
 }
 
-func MockAuthorization(account *m.Account) (bool, error) {
-	if account.UserName == "admin" {
+func MockAuthorization(account *m.Account, request *http.Request) (bool, error) {
+	if account.UserName == "admin" && request != nil {
 		return true, nil
 	}
 	return false, jwt.ErrForbidden
