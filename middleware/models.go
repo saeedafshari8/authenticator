@@ -2,7 +2,7 @@ package middleware
 
 import "time"
 
-type model struct {
+type Model struct {
 	ID        uint64 `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -10,21 +10,21 @@ type model struct {
 }
 
 type Permission struct {
-	model
-	Name  string `json:"name"`
-	Roles []Role
+	Model
+	Name  string  `json:"name"`
+	Roles []*Role `gorm:"many2many:role_permissions;"`
 }
 
 type Role struct {
-	model
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Accounts    []Account
-	Permissions []Permission
+	Model
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Permissions []*Permission `gorm:"many2many:role_permissions;"`
+	Accounts    []Account     `gorm:"foreignkey:RoleID"`
 }
 
 type Account struct {
-	model
+	Model
 	UserName  string `json:"username" sql:"index"`
 	Email     string `json:"email" sql:"index"`
 	FirstName string `json:"firstName"`
